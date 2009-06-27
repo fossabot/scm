@@ -130,7 +130,7 @@ if (count($matches[1]) > 0) {
         die("Error: Could not ping the Eventum SCM handler script.\n");
     } else {
         $msg = "GET $ping_url HTTP/1.1\r\n";
-        $msg .= "Host: $data[host]\r\n";
+        $msg .= "Host: {$data['host']}\r\n";
         $msg .= "Connection: Close\r\n\r\n";
         fwrite($fp, $msg);
         $buf = fgets($fp, 4096);
