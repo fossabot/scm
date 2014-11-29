@@ -38,9 +38,11 @@ $scm_name = 'cvs';
 //
 // DO NOT CHANGE ANYTHING AFTER THIS LINE
 //
+$dir = dirname(__FILE__);
+require_once "$dir/helpers.php";
 
 // load eventum-cvs-hook.conf.php from dir of this script if it exists
-$configfile = dirname(__FILE__) . DIRECTORY_SEPARATOR . basename(__FILE__, '.php') . '.conf.php';
+$configfile = $dir . DIRECTORY_SEPARATOR . basename(__FILE__, '.php') . '.conf.php';
 if (file_exists($configfile)) {
     require_once $configfile;
 }
@@ -146,56 +148,5 @@ if (count($matches[1]) > 0) {
     // prefix response with our name
     foreach (explode("\n", trim($data)) as $line) {
         echo "$PROGRAM: $line\n";
-    }
-}
-
-/**
-  * Fetch $url, return response and optionaly unparsed headers array.
-  *
-  * @author Elan Ruusamäe <glen@delfi.ee>
-  * @param  string  $url
-  * @param  boolean $headers = false
-  * @return mixed
-  */
-function wget($url, $headers = false)
-{
-    // see if we can fopen
-    $flag = ini_get('allow_url_fopen');
-    if (!$flag) {
-        fwrite(STDERR, "ERROR: allow_url_fopen is disabled\n");
-
-        return false;
-    }
-
-    // see if https is supported
-    $scheme = parse_url($url, PHP_URL_SCHEME);
-    if (!in_array($scheme, stream_get_wrappers())) {
-        fwrite(STDERR, "ERROR: $scheme:// scheme not supported. Load openssl php extension?\n");
-
-        return false;
-    }
-
-    ini_set('track_errors', 'On');
-    $fp = fopen($url, 'r');
-    if (!$fp) {
-        fwrite(STDERR, "ERROR: $php_errormsg\n");
-
-        return false;
-    }
-
-    if ($headers) {
-        $meta = stream_get_meta_data($fp);
-    }
-
-    $data = '';
-    while (!feof($fp)) {
-        $data .= fread($fp, 4096);
-    }
-    fclose($fp);
-
-    if ($headers) {
-        return array($meta['wrapper_data'], $data);
-    } else {
-        return $data;
     }
 }
