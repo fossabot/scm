@@ -37,9 +37,9 @@
  * Setup in your svn server hooks/post-commit:
  *
  * #!/bin/sh
- * REPOS="$1"
+ * REPO="$1"
  * REV="$2"
- * /path/toeventum-svn-hook.php "$REPOS" "$REV"
+ * /path/toeventum-svn-hook.php "$REPO" "$REV"
  */
 
 // URL to your Eventum installation.
@@ -63,17 +63,8 @@ if (file_exists($configfile)) {
 // save name of this script
 $PROGRAM = basename(array_shift($argv));
 
-if (!isset($svnlook)) {
-    $svnlook = '/usr/bin/svnlook';
-}
-
-if (!is_executable($svnlook)) {
-    fwrite(STDERR, "$PROGRAM: svnlook is not executable, edit \$svnlook\n");
-    exit(1);
-}
-
 if ($argc < 3) {
-    fwrite(STDERR, "$PROGRAM: Missing arguments, got ".($argc - 1).", expected 2\n");
+    error_log("$PROGRAM: Missing arguments, got " . ($argc - 1) . ", expected 2");
     exit(1);
 }
 
@@ -81,38 +72,17 @@ $repos = $argv[0];
 $new_revision = $argv[1];
 $old_revision = $new_revision - 1;
 
-// get commit date and username and commit message
-$command = $svnlook . ' info ' . $repos . ' -r ' . $new_revision;
-exec($command, $results);
-$username = array_shift($results);
-$date = array_shift($results);
-// ignore commit message length value
-array_shift($results);
-
-// get the full commit message
-$commit_msg = join("\n", $results);
-
-// now parse the list of modified files
-$modified_files = array();
-$command = $svnlook . ' changed ' . $repos . ' -r ' . $new_revision;
-exec($command, $files);
-
-foreach ($files as $file_info) {
-    // http://svnbook.red-bean.com/en/1.7/svn.ref.svnlook.c.changed.html
-    // flags:
-    // - 'A ' Item added to repository
-    // - 'D ' Item deleted from repository
-    // - 'U ' File contents changed
-    // - '_U' Properties of item changed; note the leading underscore
-    // - 'UU' File contents and properties changed
-    list($flags, $filename) = preg_split('/\s+/', $file_info, 2);
-    $modified_files[] = array(
-        'flags'        => preg_split('//', $flags, -1, PREG_SPLIT_NO_EMPTY),
-        'filename'     => $filename,
-        'old_revision' => $old_revision,
-        'new_revision' => $new_revision
-    );
+if (!isset($svnlook)) {
+    $svnlook = '/usr/bin/svnlook';
 }
+
+if (!is_executable($svnlook)) {
+    error_log("$PROGRAM: svnlook is not executable, edit \$svnlook");
+    exit(1);
+}
+
+$results = svnlook('info', $repos, $new_revision);
+list($username, $date, $commit_msg) = svn_commit_info($results);
 
 // parse the commit message and get all issue numbers we can find
 $issues = match_issues($commit_msg);
@@ -123,11 +93,12 @@ if ($issues) {
     $scm_name = rawurlencode($scm_name);
 
     // build the GET url to use
-    $ping_url = $eventum_url. "scm_ping.php?scm_name=$scm_name&username=$username&commit_msg=$commit_msg";
+    $ping_url = $eventum_url . "scm_ping.php?scm_name=$scm_name&username=$username&commit_msg=$commit_msg";
     foreach ($issues as $issue_id) {
         $ping_url .= "&issue[]=$issue_id";
     }
 
+    $modified_files = svn_commit_files($repos, $old_revision, $new_revision);
     foreach ($modified_files as $i => &$file) {
         list($scm_module, $filename) = fileparts($file['filename']);
 
@@ -165,14 +136,71 @@ if ($issues) {
     }
 }
 
-function fileparts($filename) {
-    // special for "dirname/" case, pathinfo would set dir to '.' and filename to 'dirname'
-    $length = strlen($filename);
-    if ($filename[$length - 1] == '/') {
-        return array(rtrim($filename, '/'), '');
+/**
+ * Process username, date and commit message from svnlook output
+ *
+ * @param array $results
+ * @return array
+ */
+function svn_commit_info($results)
+{
+    // get commit date and username and commit message
+    $username = array_shift($results);
+    $date = array_shift($results);
+
+    // ignore commit message length value
+    array_shift($results);
+
+    // get the full commit message
+    $commit_msg = join("\n", $results);
+
+    return array($username, $date, $commit_msg);
+}
+
+/**
+ * Get files affected from $rev
+ *
+ * @param string $rev
+ * @return array
+ */
+function svn_commit_files($repo, $old_revision, $new_revision)
+{
+    $modified_files = array();
+
+    $files = svnlook('changed', $repo, $new_revision);
+    foreach ($files as $file_info) {
+        // http://svnbook.red-bean.com/en/1.7/svn.ref.svnlook.c.changed.html
+        // flags:
+        // - 'A ' Item added to repository
+        // - 'D ' Item deleted from repository
+        // - 'U ' File contents changed
+        // - '_U' Properties of item changed; note the leading underscore
+        // - 'UU' File contents and properties changed
+        list($flags, $filename) = preg_split('/\s+/', $file_info, 2);
+        $modified_files[] = array(
+            'flags' => preg_split('//', $flags, -1, PREG_SPLIT_NO_EMPTY),
+            'filename' => $filename,
+            'old_revision' => $old_revision,
+            'new_revision' => $new_revision
+        );
     }
+    return $modified_files;
+}
 
-    $fi = pathinfo($filename);
+/**
+ * Execute svnlook command on $repo for $revision
+ *
+ * @param string $command
+ * @param string $repo
+ * @param int $revision
+ * @return array
+ */
+function svnlook($command, $repo, $revision)
+{
+    global $svnlook;
 
-    return array($fi['dirname'], $fi['basename']);
+    $command = "$svnlook {$command} {$repo} -r {$revision}";
+    exec($command, $output);
+
+    return $output;
 }

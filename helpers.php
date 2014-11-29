@@ -26,12 +26,32 @@
 // +----------------------------------------------------------------------+
 
 /**
+ * Extract dir and file name from abspath
+ *
+ * @param string $abspath
+ * @return array file dirname and basename
+ */
+function fileparts($abspath)
+{
+    // special for "dirname/" case, pathinfo would set dir to '.' and filename to 'dirname'
+    $length = strlen($abspath);
+    if ($abspath[$length - 1] == '/') {
+        return array(rtrim($abspath, '/'), '');
+    }
+
+    $fi = pathinfo($abspath);
+
+    return array($fi['dirname'], $fi['basename']);
+}
+
+/**
  * parse the commit message and get all issue numbers we can find
  *
  * @param string $commit_msg
  * @return array
  */
-function match_issues($commit_msg) {
+function match_issues($commit_msg)
+{
     preg_match_all('/(?:issue|bug) ?:? ?#?(\d+)/i', $commit_msg, $matches);
 
     if (count($matches[1]) > 0) {
