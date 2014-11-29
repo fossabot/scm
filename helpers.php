@@ -36,8 +36,7 @@ function scm_ping($params) {
     $ping_url = $eventum_url . "scm_ping.php";
     $res = wget($ping_url, $params);
     if (!$res) {
-        error_log("Error: Couldn't read response from $ping_url");
-        exit(1);
+        throw new RuntimeException("Couldn't read response from $ping_url");
     }
 
     list($headers, $data) = $res;
@@ -45,8 +44,7 @@ function scm_ping($params) {
     $status = array_shift($headers);
     list($proto, $status, $msg) = explode(' ', trim($status), 3);
     if ($status != '200') {
-        error_log("Error: Could not ping the Eventum SCM handler script: HTTP status code: $status $msg");
-        exit(1);
+        throw new RuntimeException("Could not ping the Eventum SCM handler script: HTTP status code: $status $msg");
     }
 
     // prefix response with our name
@@ -99,6 +97,7 @@ function match_issues($commit_msg)
  * @param array $params QueryString parameters to URL
  * @param boolean $headers = false
  * @return mixed
+ * @return array|string
  */
 function wget($url, $params, $headers = true)
 {
@@ -107,22 +106,19 @@ function wget($url, $params, $headers = true)
     // see if we can fopen
     $flag = ini_get('allow_url_fopen');
     if (!$flag) {
-        error_log("ERROR: allow_url_fopen is disabled");
-        return false;
+        throw new RuntimeException("allow_url_fopen is disabled");
     }
 
     // see if https is supported
     $scheme = parse_url($url, PHP_URL_SCHEME);
     if (!in_array($scheme, stream_get_wrappers())) {
-        error_log("ERROR: $scheme:// scheme not supported. Load openssl php extension?");
-        return false;
+        throw new RuntimeException("$scheme:// scheme not supported. Load openssl php extension?");
     }
 
-    ini_set('track_errors', 'On');
-    $fp = fopen($url, 'r');
+    $fp = @fopen($url, 'r');
     if (!$fp) {
-        error_log("ERROR: $php_errormsg");
-        return false;
+        $error = error_get_last();
+        throw new RuntimeException($error['message']);
     }
 
     if ($headers) {

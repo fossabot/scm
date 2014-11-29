@@ -97,7 +97,12 @@ if ($issues) {
         'new_versions' => $new_versions,
     );
 
-    scm_ping($params);
+    try {
+        scm_ping($params);
+    } catch (Exception $e) {
+        error_log("ERROR[$PROGRAM]: " . $e->getMessage());
+        exit(1);
+    }
 }
 
 /**
