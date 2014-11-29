@@ -26,6 +26,36 @@
 // +----------------------------------------------------------------------+
 
 /**
+ * Submit SCM commit data to Eventum.
+ *
+ * @param array $params
+ */
+function scm_ping($params) {
+    global $PROGRAM, $eventum_url;
+
+    $ping_url = $eventum_url . "scm_ping.php";
+    $res = wget($ping_url, $params);
+    if (!$res) {
+        error_log("Error: Couldn't read response from $ping_url");
+        exit(1);
+    }
+
+    list($headers, $data) = $res;
+    // status line is first header in response
+    $status = array_shift($headers);
+    list($proto, $status, $msg) = explode(' ', trim($status), 3);
+    if ($status != '200') {
+        error_log("Error: Could not ping the Eventum SCM handler script: HTTP status code: $status $msg");
+        exit(1);
+    }
+
+    // prefix response with our name
+    foreach (explode("\n", trim($data)) as $line) {
+        echo "$PROGRAM: $line\n";
+    }
+}
+
+/**
  * Extract dir and file name from abspath
  *
  * @param string $abspath
