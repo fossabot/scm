@@ -109,9 +109,8 @@ $input = stream_get_contents(STDIN);
 $commit_msg = rtrim(substr($input, strpos($input, 'Log Message:') + strlen('Log Message:') + 1));
 
 // parse the commit message and get all issue numbers we can find
-preg_match_all('/(?:issue|bug) ?:? ?#?(\d+)/i', $commit_msg, $matches);
-
-if (count($matches[1]) > 0) {
+$issues = match_issues($commit_msg);
+if ($issues) {
     // need to encode all of the url arguments
     $commit_msg = rawurlencode($commit_msg);
     $cvs_module = rawurlencode($cvs_module);
@@ -120,7 +119,7 @@ if (count($matches[1]) > 0) {
 
     // build the GET url to use
     $ping_url = $eventum_url. "scm_ping.php?scm_name=$scm_name&module=$cvs_module&username=$username&commit_msg=$commit_msg";
-    foreach ($matches[1] as $issue_id) {
+    foreach ($issues as $issue_id) {
         $ping_url .= "&issue[]=$issue_id";
     }
 

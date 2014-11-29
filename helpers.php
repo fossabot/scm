@@ -26,6 +26,22 @@
 // +----------------------------------------------------------------------+
 
 /**
+ * parse the commit message and get all issue numbers we can find
+ *
+ * @param string $commit_msg
+ * @return array
+ */
+function match_issues($commit_msg) {
+    preg_match_all('/(?:issue|bug) ?:? ?#?(\d+)/i', $commit_msg, $matches);
+
+    if (count($matches[1]) > 0) {
+        return $matches[1];
+    }
+
+    return null;
+}
+
+/**
  * Fetch $url, return response and optionally unparsed headers array.
  *
  * @author Elan Ruusamäe <glen@delfi.ee>
