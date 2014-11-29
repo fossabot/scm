@@ -34,6 +34,8 @@ function scm_ping($params) {
     global $PROGRAM, $eventum_url;
 
     $ping_url = $eventum_url . "scm_ping.php";
+    $params['json'] = 1;
+
     $res = wget($ping_url, $params);
     if (!$res) {
         throw new RuntimeException("Couldn't read response from $ping_url");
@@ -45,6 +47,15 @@ function scm_ping($params) {
     list($proto, $status, $msg) = explode(' ', trim($status), 3);
     if ($status != '200') {
         throw new RuntimeException("Could not ping the Eventum SCM handler script: HTTP status code: $status $msg");
+    }
+
+    $status = json_decode($data, true);
+    // if response is json, try to figure error from there
+    if (is_array($status)) {
+        if ($status['code']) {
+            throw new RuntimeException($status['message'], $status['code']);
+        }
+        $data = $status['message'];
     }
 
     // prefix response with our name
