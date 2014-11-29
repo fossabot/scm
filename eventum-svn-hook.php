@@ -87,37 +87,43 @@ list($username, $date, $commit_msg) = svn_commit_info($results);
 // parse the commit message and get all issue numbers we can find
 $issues = match_issues($commit_msg);
 if ($issues) {
-    // need to encode all of the url arguments
-    $commit_msg = rawurlencode($commit_msg);
-    $username = rawurlencode($username);
-    $scm_name = rawurlencode($scm_name);
-
-    // build the GET url to use
-    $ping_url = $eventum_url . "scm_ping.php?scm_name=$scm_name&username=$username&commit_msg=$commit_msg";
-    foreach ($issues as $issue_id) {
-        $ping_url .= "&issue[]=$issue_id";
-    }
+    $module = array();
+    $files = array();
+    $old_versions = array();
+    $new_versions = array();
 
     $modified_files = svn_commit_files($repos, $old_revision, $new_revision);
     foreach ($modified_files as $i => &$file) {
         list($scm_module, $filename) = fileparts($file['filename']);
 
-        $ping_url .= "&module[$i]=" . rawurlencode($scm_module);
-        $ping_url .= "&files[$i]=" . rawurlencode($filename);
+        $module[$i] = $scm_module;
+        $files[$i] = $filename;
 
         // add old revision if content was changed
         if (array_search('A', $file['flags']) === false) {
-            $ping_url .= "&old_versions[$i]=" . rawurlencode($file['old_revision']);
+            $old_versions[$i] = $file['old_revision'];
         }
         // add new revision if it was not removed
         if (array_search('D', $file['flags']) === false) {
-            $ping_url .= "&new_versions[$i]=" . rawurlencode($file['new_revision']);
+            $new_versions[$i] = $file['new_revision'];
         }
     }
 
-    $res = wget($ping_url, true);
+    $params = array(
+        'scm_name' => $scm_name,
+        'username' => $username,
+        'commit_msg' => $commit_msg,
+        'issue' => $issues,
+        'module' => $module,
+        'files' => $files,
+        'old_versions' => $old_versions,
+        'new_versions' => $new_versions,
+    );
+
+    $ping_url = $eventum_url . "scm_ping.php";
+    $res = wget($ping_url, $params);
     if (!$res) {
-        fwrite(STDERR, "Error: Couldn't read response from $ping_url\n");
+        error_log("Error: Couldn't read response from $ping_url");
         exit(1);
     }
 
@@ -126,7 +132,7 @@ if ($issues) {
     $status = array_shift($headers);
     list($proto, $status, $msg) = explode(' ', trim($status), 3);
     if ($status != '200') {
-        fwrite(STDERR, "Error: Could not ping the Eventum SCM handler script: HTTP status code: $status $msg\n");
+        error_log("Error: Could not ping the Eventum SCM handler script: HTTP status code: $status $msg");
         exit(1);
     }
 

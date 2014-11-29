@@ -77,25 +77,28 @@ if ($issues) {
     // grab fileinfo
     list($username, $cvs_module, $modified_files) = cvs_commit_info($argv);
 
-    // need to encode all of the url arguments
-    $commit_msg = rawurlencode($commit_msg);
-    $cvs_module = rawurlencode($cvs_module);
-    $username = rawurlencode($username);
-    $scm_name = rawurlencode($scm_name);
-
-    // build the GET url to use
-    $ping_url = $eventum_url. "scm_ping.php?scm_name=$scm_name&module=$cvs_module&username=$username&commit_msg=$commit_msg";
-    foreach ($issues as $issue_id) {
-        $ping_url .= "&issue[]=$issue_id";
-    }
-
+    $files = array();
+    $old_versions = array();
+    $new_versions = array();
     for ($i = 0; $i < count($modified_files); $i++) {
-        $ping_url .= "&files[$i]=" . rawurlencode($modified_files[$i]['filename']);
-        $ping_url .= "&old_versions[$i]=" . rawurlencode($modified_files[$i]['old_revision']);
-        $ping_url .= "&new_versions[$i]=" . rawurlencode($modified_files[$i]['new_revision']);
+        $files[$i] = $modified_files[$i]['filename'];
+        $old_versions[$i] = $modified_files[$i]['old_revision'];
+        $new_versions[$i] = $modified_files[$i]['new_revision'];
     }
 
-    $res = wget($ping_url, true);
+    $params = array(
+        'scm_name' => $scm_name,
+        'username' => $username,
+        'commit_msg' => $commit_msg,
+        'issue' => $issues,
+        'module' => $cvs_module,
+        'files' => $files,
+        'old_versions' => $old_versions,
+        'new_versions' => $new_versions,
+    );
+
+    $ping_url = $eventum_url . "scm_ping.php";
+    $res = wget($ping_url, $params);
     if (!$res) {
         error_log("Error: Couldn't read response from $ping_url");
         exit(1);
@@ -120,7 +123,8 @@ if ($issues) {
  * @param array $argv
  * @return array of username, cvs module, modified files
  */
-function cvs_commit_info($argv) {
+function cvs_commit_info($argv)
+{
     // user who is committing these changes
     $username = array_shift($argv);
 
@@ -146,7 +150,8 @@ function cvs_commit_info($argv) {
  *
  * @return array
  */
-function cvs_parse_info_1_11($argv) {
+function cvs_parse_info_1_11($argv)
+{
     $args = explode(' ', array_shift($argv));
 
     // save what the name of the module is
@@ -163,7 +168,7 @@ function cvs_parse_info_1_11($argv) {
     foreach ($args as $file_info) {
         list($filename, $old_revision, $new_revision) = explode(',', $file_info);
         $modified_files[] = array(
-            'filename'     => $filename,
+            'filename' => $filename,
             'old_revision' => cvs_filter_none($old_revision),
             'new_revision' => cvs_filter_none($new_revision),
         );
@@ -178,7 +183,8 @@ function cvs_parse_info_1_11($argv) {
  *
  * @return array
  */
-function cvs_parse_info_1_12($args) {
+function cvs_parse_info_1_12($args)
+{
     // save what the name of the module is
     $cvs_module = array_shift($args);
 
@@ -194,7 +200,7 @@ function cvs_parse_info_1_12($args) {
     while ($file_info = array_splice($args, 0, 3)) {
         list($filename, $old_revision, $new_revision) = $file_info;
         $modified_files[] = array(
-            'filename'     => $filename,
+            'filename' => $filename,
             'old_revision' => cvs_filter_none($old_revision),
             'new_revision' => cvs_filter_none($new_revision),
         );
@@ -219,6 +225,7 @@ function cvs_filter_none($rev)
 
 /**
  * Obtain CVS commit message
+ *
  * @return string
  */
 function cvs_commit_msg()

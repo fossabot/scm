@@ -65,33 +65,33 @@ function match_issues($commit_msg)
  * Fetch $url, return response and optionally unparsed headers array.
  *
  * @author Elan Ruusamäe <glen@delfi.ee>
- * @param string $url
+ * @param string $url URL to request
+ * @param array $params QueryString parameters to URL
  * @param boolean $headers = false
  * @return mixed
  */
-function wget($url, $headers = false)
+function wget($url, $params, $headers = true)
 {
+    $url .= '?' . http_build_query($params, null, '&');
+
     // see if we can fopen
     $flag = ini_get('allow_url_fopen');
     if (!$flag) {
-        fwrite(STDERR, "ERROR: allow_url_fopen is disabled\n");
-
+        error_log("ERROR: allow_url_fopen is disabled");
         return false;
     }
 
     // see if https is supported
     $scheme = parse_url($url, PHP_URL_SCHEME);
     if (!in_array($scheme, stream_get_wrappers())) {
-        fwrite(STDERR, "ERROR: $scheme:// scheme not supported. Load openssl php extension?\n");
-
+        error_log("ERROR: $scheme:// scheme not supported. Load openssl php extension?");
         return false;
     }
 
     ini_set('track_errors', 'On');
     $fp = fopen($url, 'r');
     if (!$fp) {
-        fwrite(STDERR, "ERROR: $php_errormsg\n");
-
+        error_log("ERROR: $php_errormsg");
         return false;
     }
 
@@ -107,7 +107,7 @@ function wget($url, $headers = false)
 
     if ($headers) {
         return array($meta['wrapper_data'], $data);
-    } else {
-        return $data;
     }
+
+    return $data;
 }
