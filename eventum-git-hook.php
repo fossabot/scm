@@ -38,11 +38,14 @@ $scm_name = 'git';
 // DO NOT CHANGE ANYTHING AFTER THIS LINE
 //
 
+// save name of this script
+$PROGRAM = basename(realpath(array_shift($argv)), '.php');
+
 $dir = dirname(__FILE__);
 require_once "$dir/helpers.php";
 
-// load eventum-svn-hook.conf.php from dir of this script if it exists
-$configfile = dirname(__FILE__) . DIRECTORY_SEPARATOR . basename(__FILE__, '.php') . '.conf.php';
+// load eventum-git-hook.conf.php from dir of this script if it exists
+$configfile = "$dir/$PROGRAM.conf.php";
 if (file_exists($configfile)) {
     require_once $configfile;
 }
