@@ -47,13 +47,11 @@ if (file_exists($configfile)) {
     require_once $configfile;
 }
 
-// save name of this script
-$PROGRAM = basename(array_shift($argv));
-
 $nullsha1 = '0000000000000000000000000000000000000000';
 $emptysha1 = '4b825dc642cb6eb9a060e54bf8d69288fbee4904';
 
 $reflist = git_receive_refs();
+// process each branch push
 foreach ($reflist as $refs) {
     list($old, $new, $origin) = $refs;
     if ($new == $nullsha1) {
@@ -68,12 +66,18 @@ foreach ($reflist as $refs) {
 
     $revlist = git_rev_list($old, $new, '--no-merges --author-date-order --reverse');
     foreach ($revlist as $rev) {
-        ping_eventum($old, $rev);
+        git_scm_ping($old, $rev);
         $old = $rev;
     }
 }
 
-function ping_eventum($oldrev, $rev)
+/**
+ * Submit Git data to Eventum
+ *
+ * @param string $oldrev
+ * @param string $rev
+ */
+function git_scm_ping($oldrev, $rev)
 {
     $commit_msg = git_commit_msg($rev);
     $issues = match_issues($commit_msg);
