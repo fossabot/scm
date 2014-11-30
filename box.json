@@ -1,0 +1,18 @@
+{
+    "chmod": "0755",
+    "finder": [
+        {
+            "in": ".",
+            "name": [
+                "helpers.php"
+            ]
+        }
+    ],
+    "compactors": [
+        "Herrera\\Box\\Compactor\\Php"
+    ],
+    "compression": "GZ",
+    "main": "@main@",
+    "output": "@output@",
+    "stub": true
+}
