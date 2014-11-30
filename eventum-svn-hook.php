@@ -191,8 +191,5 @@ function svnlook($command, $repo, $revision)
 {
     global $svnlook;
 
-    $command = "$svnlook {$command} {$repo} -r {$revision}";
-    exec($command, $output);
-
-    return $output;
+    return execx("$svnlook $command $repo -r $revision");
 }

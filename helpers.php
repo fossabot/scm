@@ -26,11 +26,29 @@
 // +----------------------------------------------------------------------+
 
 /**
+ * Cxecute command
+ *
+ * @param string $command
+ * @return array command output each line as array element
+ * @throw RuntimeException throw exception if exits with non-zero
+ */
+function execx($command)
+{
+    exec($command, $output, $rc);
+    if ($rc) {
+        throw new RuntimeException("$command exited with $rc");
+    }
+
+    return $output;
+}
+
+/**
  * Submit SCM commit data to Eventum.
  *
  * @param array $params
  */
-function scm_ping($params) {
+function scm_ping($params)
+{
     global $PROGRAM, $eventum_url;
 
     $ping_url = $eventum_url . "scm_ping.php";
