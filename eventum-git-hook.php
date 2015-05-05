@@ -31,8 +31,8 @@
 $eventum_url = 'http://eventum.example.com/';
 // SCM repository name. Needed if multiple repositories configured
 
-// TODO: use $GL_REPO
-$scm_name = 'git';
+// default to $GL_REPO
+$scm_name = getenv('GL_REPO') ?: 'git';
 
 //
 // DO NOT CHANGE ANYTHING AFTER THIS LINE
