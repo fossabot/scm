@@ -141,6 +141,7 @@ function git_receive_refs()
     foreach (explode(PHP_EOL, rtrim($input, PHP_EOL)) as $line) {
         $result[] = explode(' ', $line);
     }
+
     return $result;
 }
 
@@ -183,6 +184,7 @@ function git_rev_list($old, $new, $options = '')
 function git_commit_author($rev)
 {
     $output = execx("git log --format=%ae -n1 $rev");
+
     return current($output);
 }
 
@@ -193,5 +195,6 @@ function git_commit_author($rev)
 function git_commit_msg($rev)
 {
     $output = execx("git log --format=%B -n1 $rev");
+
     return current($output);
 }

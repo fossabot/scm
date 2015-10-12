@@ -65,7 +65,7 @@ if (file_exists($configfile)) {
 }
 
 if ($argc < 3) {
-    error_log("$PROGRAM: Missing arguments, got " . ($argc - 1) . ", expected 2");
+    error_log("$PROGRAM: Missing arguments, got " . ($argc - 1) . ', expected 2');
     exit(1);
 }
 
@@ -145,7 +145,7 @@ function svn_commit_info($results)
     array_shift($results);
 
     // get the full commit message
-    $commit_msg = join("\n", $results);
+    $commit_msg = implode("\n", $results);
 
     return array($username, $date, $commit_msg);
 }
@@ -177,6 +177,7 @@ function svn_commit_files($repo, $old_revision, $new_revision)
             'new_revision' => $new_revision
         );
     }
+
     return $modified_files;
 }
 

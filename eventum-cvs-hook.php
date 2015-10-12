@@ -206,6 +206,7 @@ function cvs_filter_none($rev)
     if ($rev != 'NONE') {
         return $rev;
     }
+
     return null;
 }
 
@@ -219,5 +220,6 @@ function cvs_commit_msg()
     // get the full commit message
     $input = stream_get_contents(STDIN);
     $commit_msg = rtrim(substr($input, strpos($input, 'Log Message:') + strlen('Log Message:') + 1));
+
     return $commit_msg;
 }

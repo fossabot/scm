@@ -1,4 +1,5 @@
 <?php
+
 /* vim: set expandtab tabstop=4 shiftwidth=4 encoding=utf-8: */
 // +----------------------------------------------------------------------+
 // | Eventum - Issue Tracking System                                      |
@@ -51,7 +52,7 @@ function scm_ping($params)
 {
     global $PROGRAM, $eventum_url;
 
-    $ping_url = $eventum_url . "scm_ping.php";
+    $ping_url = $eventum_url . 'scm_ping.php';
     $params['json'] = 1;
 
     $res = wget($ping_url, $params);
@@ -135,7 +136,7 @@ function wget($url, $params, $headers = true)
     // see if we can fopen
     $flag = ini_get('allow_url_fopen');
     if (!$flag) {
-        throw new RuntimeException("allow_url_fopen is disabled");
+        throw new RuntimeException('allow_url_fopen is disabled');
     }
 
     // see if https is supported
