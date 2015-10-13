@@ -55,7 +55,7 @@ $scm_name = 'svn';
 // save name of this script
 $PROGRAM = basename(realpath(array_shift($argv)), '.php');
 
-$dir = dirname(__FILE__);
+$dir = __DIR__;
 require_once "$dir/helpers.php";
 
 // load eventum-svn-hook.conf.php from dir of this script if it exists
