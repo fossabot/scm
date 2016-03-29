@@ -6,7 +6,7 @@
 // +----------------------------------------------------------------------+
 // | Copyright (c) 2003 - 2008 MySQL AB                                   |
 // | Copyright (c) 2008 - 2010 Sun Microsystem Inc.                       |
-// | Copyright (c) 2011 - 2015 Eventum Team.                              |
+// | Copyright (c) 2011 - 2016 Eventum Team.                              |
 // |                                                                      |
 // | This program is free software; you can redistribute it and/or modify |
 // | it under the terms of the GNU General Public License as published by |
@@ -80,11 +80,19 @@ if ($issues) {
     $files = array();
     $old_versions = array();
     $new_versions = array();
+    $commitid = array();
     for ($i = 0; $i < count($modified_files); $i++) {
         $files[$i] = $modified_files[$i]['filename'];
+        $commitid[$i] = $modified_files[$i]['commitid'];
         $old_versions[$i] = $modified_files[$i]['old_revision'];
         $new_versions[$i] = $modified_files[$i]['new_revision'];
     }
+
+    $commitid = array_unique($commitid);
+    if (count($commitid) > 1) {
+        throw new InvalidArgumentException("Commit Id should be unique");
+    }
+    $commitid = current($commitid);
 
     $params = array(
         'scm_name' => $scm_name,
@@ -93,6 +101,7 @@ if ($issues) {
         'issue' => $issues,
         'module' => $cvs_module,
         'files' => $files,
+        'commitid' => $commitid,
         'old_versions' => $old_versions,
         'new_versions' => $new_versions,
     );
@@ -189,10 +198,35 @@ function cvs_parse_info_1_12($args)
             'filename' => $filename,
             'old_revision' => cvs_filter_none($old_revision),
             'new_revision' => cvs_filter_none($new_revision),
+            'commitid' => cvs_commitid($filename),
         );
     }
 
     return array($cvs_module, $modified_files);
+}
+
+/**
+ * Extract 'commitid' from file, Requires CVS 1.12+
+ *
+ * @param string $filename
+ * @return string
+ */
+function cvs_commitid($filename)
+{
+    $result = execx("cvs -Qn status " . escapeshellarg($filename));
+
+    $pattern = '/Commit Identifier:\s+(?P<commitid>\S+)/';
+    // find line matching 'Commit Identifier'
+    $lines = preg_grep($pattern, $result);
+    if (!$lines) {
+        return null;
+    }
+    // match commit id
+    if (!preg_match($pattern, current($lines), $m)) {
+        return null;
+    }
+
+    return $m['commitid'];
 }
 
 /**
