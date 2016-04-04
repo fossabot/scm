@@ -113,6 +113,7 @@ function git_scm_ping($oldrev, $rev)
         'issue' => $issues,
         'module' => $module,
         'files' => $files,
+        'commitid' => $rev,
         'old_versions' => $old_versions,
         'new_versions' => $new_versions,
     );
