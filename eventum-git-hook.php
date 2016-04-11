@@ -185,6 +185,18 @@ function git_commit_author($rev)
 }
 
 /**
+ * Get short Git shorter unique SHA1 reference
+ *
+ * @param string $rev
+ * @return string
+ */
+function git_short_rev($rev) {
+    $output = execx("git rev-parse --short $rev");
+
+    return current($output);
+}
+
+/**
  * @param string $rev
  * @return string
  */
