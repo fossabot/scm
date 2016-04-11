@@ -90,7 +90,7 @@ if ($issues) {
 
     $commitid = array_unique($commitid);
     if (count($commitid) > 1) {
-        throw new InvalidArgumentException("Commit Id should be unique");
+        throw new InvalidArgumentException('Commit Id should be unique');
     }
     $commitid = current($commitid);
 
@@ -210,7 +210,7 @@ function cvs_parse_info_1_12($args)
  */
 function cvs_commitid($filename)
 {
-    $result = execx("cvs -Qn status " . escapeshellarg($filename));
+    $result = execx('cvs -Qn status ' . escapeshellarg($filename));
 
     $pattern = '/Commit Identifier:\s+(?P<commitid>\S+)/';
     // find line matching 'Commit Identifier'

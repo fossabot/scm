@@ -190,7 +190,8 @@ function git_commit_author($rev)
  * @param string $rev
  * @return string
  */
-function git_short_rev($rev) {
+function git_short_rev($rev)
+{
     $output = execx("git rev-parse --short $rev");
 
     return current($output);
