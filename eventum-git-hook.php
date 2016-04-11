@@ -170,9 +170,7 @@ function git_rev_list($old, $new, $options = '')
  */
 function git_commit_author_email($rev)
 {
-    $output = execx("git log --format=%ae -n1 $rev");
-
-    return current($output);
+    return git_format($rev, '%ae');
 }
 
 /**
@@ -181,9 +179,7 @@ function git_commit_author_email($rev)
  */
 function git_commit_author_name($rev)
 {
-    $output = execx("git log --format=%an -n1 $rev");
-
-    return current($output);
+    return git_format($rev, '%an');
 }
 
 /**
@@ -192,7 +188,27 @@ function git_commit_author_name($rev)
  */
 function git_commit_author_date($rev)
 {
-    $output = execx("git log --format=%at -n1 $rev");
+    return git_format($rev, '%at');
+}
+
+/**
+ * @param string $rev
+ * @return string
+ */
+function git_commit_msg($rev)
+{
+    return git_format($rev, '%B');
+}
+
+/**
+ * Pretty format $rev with $format. It should be one line out output
+ *
+ * @param string $rev
+ * @return string
+ */
+function git_format($rev, $format)
+{
+    $output = execx("git log --format=$format -n1 $rev");
 
     return current($output);
 }
@@ -206,17 +222,6 @@ function git_commit_author_date($rev)
 function git_short_rev($rev)
 {
     $output = execx("git rev-parse --short $rev");
-
-    return current($output);
-}
-
-/**
- * @param string $rev
- * @return string
- */
-function git_commit_msg($rev)
-{
-    $output = execx("git log --format=%B -n1 $rev");
 
     return current($output);
 }
