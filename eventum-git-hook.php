@@ -75,7 +75,8 @@ function git_scm_ping($oldrev, $rev)
     }
 
     global $PROGRAM, $scm_name;
-    $username = git_commit_author($rev);
+    $username = git_commit_author_email($rev);
+    $author_name = git_commit_author_name($rev);
     $modified_files = git_commit_files($rev);
     $files = array();
     $old_versions = array();
@@ -91,6 +92,7 @@ function git_scm_ping($oldrev, $rev)
     $params = array(
         'scm_name' => $scm_name,
         'username' => $username,
+        'author_name' => $author_name,
         'commit_msg' => $commit_msg,
         'issue' => $issues,
         'files' => $files,
@@ -152,6 +154,7 @@ function git_commit_files($rev)
 /**
  * @param string $old revision start
  * @param string $new revision end
+ * @param string $options
  * @return array
  */
 function git_rev_list($old, $new, $options = '')
@@ -163,9 +166,20 @@ function git_rev_list($old, $new, $options = '')
  * @param string $rev
  * @return string
  */
-function git_commit_author($rev)
+function git_commit_author_email($rev)
 {
     $output = execx("git log --format=%ae -n1 $rev");
+
+    return current($output);
+}
+
+/**
+ * @param string $rev
+ * @return string
+ */
+function git_commit_author_name($rev)
+{
+    $output = execx("git log --format=%an -n1 $rev");
 
     return current($output);
 }
