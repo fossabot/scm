@@ -42,7 +42,7 @@ $emptysha1 = '4b825dc642cb6eb9a060e54bf8d69288fbee4904';
 $reflist = git_receive_refs();
 // process each branch push
 foreach ($reflist as $refs) {
-    list($old, $new, $origin) = $refs;
+    list($old, $new, $refname) = $refs;
     if ($new == $nullsha1) {
         // remote branch is deleted. nothing to do
         continue;
@@ -55,7 +55,7 @@ foreach ($reflist as $refs) {
 
     $revlist = git_rev_list($old, $new, '--no-merges --author-date-order --reverse');
     foreach ($revlist as $rev) {
-        git_scm_ping($old, $rev);
+        git_scm_ping($old, $rev, $refname);
         $old = $rev;
     }
 }
@@ -66,7 +66,7 @@ foreach ($reflist as $refs) {
  * @param string $oldrev
  * @param string $rev
  */
-function git_scm_ping($oldrev, $rev)
+function git_scm_ping($oldrev, $rev, $refname)
 {
     $commit_msg = git_commit_msg($rev);
     $issues = match_issues($commit_msg);
@@ -79,6 +79,7 @@ function git_scm_ping($oldrev, $rev)
     $author_name = git_commit_author_name($rev);
     $commit_date = git_commit_author_date($rev);
     $modified_files = git_commit_files($rev);
+    $branch = git_branch_name($refname);
     $files = array();
     $old_versions = array();
     $new_versions = array();
@@ -95,6 +96,7 @@ function git_scm_ping($oldrev, $rev)
         'author_email' => $author_email,
         'author_name' => $author_name,
         'commit_date' => $commit_date,
+        'branch' => $branch,
         'commit_msg' => $commit_msg,
         'issue' => $issues,
         'files' => $files,
@@ -208,9 +210,7 @@ function git_commit_msg($rev)
  */
 function git_format($rev, $format)
 {
-    $output = execx("git log --format=$format -n1 $rev");
-
-    return current($output);
+    return execl("git log --format=$format -n1 $rev");
 }
 
 /**
@@ -221,7 +221,16 @@ function git_format($rev, $format)
  */
 function git_short_rev($rev)
 {
-    $output = execx("git rev-parse --short $rev");
+    return execl("git rev-parse --short $rev");
+}
 
-    return current($output);
+/**
+ * get git branch name for the refname
+ *
+ * @param string $refname
+ * @return string
+ */
+function git_branch_name($refname)
+{
+    return execl("git rev-parse --symbolic --abbrev-ref $refname");
 }

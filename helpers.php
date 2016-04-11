@@ -12,7 +12,7 @@
  */
 
 /**
- * Cxecute command
+ * Execute command
  *
  * @param string $command
  * @return array command output each line as array element
@@ -26,6 +26,19 @@ function execx($command)
     }
 
     return $output;
+}
+
+/**
+ * Execute command, returning first line from it
+ *
+ * @param string $command
+ * @return string
+ */
+function execl($command)
+{
+    $output = execx($command);
+
+    return current($output);
 }
 
 /**
