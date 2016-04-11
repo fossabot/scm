@@ -75,7 +75,7 @@ function git_scm_ping($oldrev, $rev)
     }
 
     global $PROGRAM, $scm_name;
-    $username = git_commit_author_email($rev);
+    $author_email = git_commit_author_email($rev);
     $author_name = git_commit_author_name($rev);
     $modified_files = git_commit_files($rev);
     $files = array();
@@ -91,7 +91,7 @@ function git_scm_ping($oldrev, $rev)
 
     $params = array(
         'scm_name' => $scm_name,
-        'username' => $username,
+        'author_email' => $author_email,
         'author_name' => $author_name,
         'commit_msg' => $commit_msg,
         'issue' => $issues,
