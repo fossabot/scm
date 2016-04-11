@@ -4,7 +4,7 @@
 // +----------------------------------------------------------------------+
 // | Eventum - Issue Tracking System                                      |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 2014 Eventum Team.                                     |
+// | Copyright (c) 2014-2016 Eventum Team.                                |
 // |                                                                      |
 // | This program is free software; you can redistribute it and/or modify |
 // | it under the terms of the GNU General Public License as published by |
@@ -91,16 +91,12 @@ function git_scm_ping($oldrev, $rev)
     global $PROGRAM, $scm_name;
     $username = git_commit_author($rev);
     $modified_files = git_commit_files($rev);
-    $module = array();
     $files = array();
     $old_versions = array();
     $new_versions = array();
 
     foreach ($modified_files as $i => $file) {
-        list($scm_module, $filename) = fileparts($file['filename']);
-
-        $module[$i] = $scm_module;
-        $files[$i] = $filename;
+        $files[$i] = $file['filename'];
 
         $old_versions[$i] = $oldrev;
         $new_versions[$i] = $rev;
@@ -111,7 +107,6 @@ function git_scm_ping($oldrev, $rev)
         'username' => $username,
         'commit_msg' => $commit_msg,
         'issue' => $issues,
-        'module' => $module,
         'files' => $files,
         'commitid' => $rev,
         'old_versions' => $old_versions,

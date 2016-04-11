@@ -95,10 +95,7 @@ if ($issues) {
 
     $modified_files = svn_commit_files($repos, $old_revision, $new_revision);
     foreach ($modified_files as $i => &$file) {
-        list($scm_module, $filename) = fileparts($file['filename']);
-
-        $module[$i] = $scm_module;
-        $files[$i] = $filename;
+        $files[$i] = $file['filename'];
 
         // add old revision if content was changed
         if (array_search('A', $file['flags']) === false) {
@@ -115,7 +112,6 @@ if ($issues) {
         'username' => $username,
         'commit_msg' => $commit_msg,
         'issue' => $issues,
-        'module' => $module,
         'files' => $files,
         'commitid' => $new_revision,
         'old_versions' => $old_versions,

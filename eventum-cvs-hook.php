@@ -75,7 +75,7 @@ $issues = match_issues($commit_msg);
 
 if ($issues) {
     // grab fileinfo
-    list($username, $cvs_module, $modified_files) = cvs_commit_info($argv);
+    list($username, $modified_files) = cvs_commit_info($argv);
 
     $files = array();
     $old_versions = array();
@@ -99,7 +99,6 @@ if ($issues) {
         'username' => $username,
         'commit_msg' => $commit_msg,
         'issue' => $issues,
-        'module' => $cvs_module,
         'files' => $files,
         'commitid' => $commitid,
         'old_versions' => $old_versions,
@@ -116,7 +115,7 @@ if ($issues) {
 
 /**
  * @param array $argv
- * @return array of username, cvs module, modified files
+ * @return array of username, modified files
  */
 function cvs_commit_info($argv)
 {
@@ -124,19 +123,17 @@ function cvs_commit_info($argv)
     $username = array_shift($argv);
 
     if (count($argv) == 1) {
-        $info = cvs_parse_info_1_11($argv);
+        $modified_files = cvs_parse_info_1_11($argv);
     } else {
-        $info = cvs_parse_info_1_12($argv);
+        $modified_files = cvs_parse_info_1_12($argv);
     }
 
     // parse told to skip (for example adding new dir)
-    if (!$info) {
+    if (!$modified_files) {
         exit(0);
     }
 
-    list($cvs_module, $modified_files) = $info;
-
-    return array($username, $cvs_module, $modified_files);
+    return array($username, $modified_files);
 }
 
 /**
@@ -163,13 +160,13 @@ function cvs_parse_info_1_11($argv)
     foreach ($args as $file_info) {
         list($filename, $old_revision, $new_revision) = explode(',', $file_info);
         $modified_files[] = array(
-            'filename' => $filename,
+            'filename' => "$cvs_module/$filename",
             'old_revision' => cvs_filter_none($old_revision),
             'new_revision' => cvs_filter_none($new_revision),
         );
     }
 
-    return array($cvs_module, $modified_files);
+    return $modified_files;
 }
 
 /**
@@ -195,14 +192,14 @@ function cvs_parse_info_1_12($args)
     while ($file_info = array_splice($args, 0, 3)) {
         list($filename, $old_revision, $new_revision) = $file_info;
         $modified_files[] = array(
-            'filename' => $filename,
+            'filename' => "$cvs_module/$filename",
             'old_revision' => cvs_filter_none($old_revision),
             'new_revision' => cvs_filter_none($new_revision),
             'commitid' => cvs_commitid($filename),
         );
     }
 
-    return array($cvs_module, $modified_files);
+    return $modified_files;
 }
 
 /**
