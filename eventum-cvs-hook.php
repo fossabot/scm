@@ -78,6 +78,7 @@ if ($issues) {
     $commitid = current($commitid);
 
     $params = array(
+        'scm' => 'cvs',
         'scm_name' => $scm_name,
         'username' => $username,
         'commit_msg' => $commit_msg,

@@ -92,6 +92,7 @@ function git_scm_ping($oldrev, $rev, $refname)
     }
 
     $params = array(
+        'scm' => 'git',
         'scm_name' => $scm_name,
         'author_email' => $author_email,
         'author_name' => $author_name,

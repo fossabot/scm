@@ -89,6 +89,7 @@ if ($issues) {
     }
 
     $params = array(
+        'scm' => 'svn',
         'scm_name' => $scm_name,
         'username' => $username,
         'commit_msg' => $commit_msg,
