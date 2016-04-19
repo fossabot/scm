@@ -36,27 +36,33 @@ if (file_exists($configfile)) {
     require_once $configfile;
 }
 
-$nullsha1 = '0000000000000000000000000000000000000000';
-$emptysha1 = '4b825dc642cb6eb9a060e54bf8d69288fbee4904';
-
 $reflist = git_receive_refs();
-// process each branch push
-foreach ($reflist as $refs) {
-    list($old, $new, $refname) = $refs;
-    if ($new == $nullsha1) {
-        // remote branch is deleted. nothing to do
-        continue;
-    }
+process_push($reflist);
+exit(0);
 
-    if ($old == $nullsha1) {
-        // remote branch is created. use emptysha1 instead
-        $old = $emptysha1;
-    }
+function process_push($reflist)
+{
+    $nullsha1 = '0000000000000000000000000000000000000000';
+    $emptysha1 = '4b825dc642cb6eb9a060e54bf8d69288fbee4904';
 
-    $revlist = git_rev_list($old, $new, '--no-merges --author-date-order --reverse');
-    foreach ($revlist as $rev) {
-        git_scm_ping($old, $rev, $refname);
-        $old = $rev;
+    // process each branch push
+    foreach ($reflist as $refs) {
+        list($old, $new, $refname) = $refs;
+        if ($new == $nullsha1) {
+            // remote branch is deleted. nothing to do
+            continue;
+        }
+
+        if ($old == $nullsha1) {
+            // remote branch is created. use emptysha1 instead
+            $old = $emptysha1;
+        }
+
+        $revlist = git_rev_list($old, $new, '--no-merges --author-date-order --reverse');
+        foreach ($revlist as $rev) {
+            git_scm_ping($old, $rev, $refname);
+            $old = $rev;
+        }
     }
 }
 
