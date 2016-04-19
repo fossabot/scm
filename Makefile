@@ -20,9 +20,9 @@ phar: $(TARGETS)
 # install scm (cvs, svn, git) hooks
 install:
 	install -d $(DESTDIR)$(sbindir)
-	install -p eventum-cvs-hook.php $(DESTDIR)$(sbindir)/eventum-cvs-hook
-	install -p eventum-svn-hook.php $(DESTDIR)$(sbindir)/eventum-svn-hook
-	install -p eventum-git-hook.php $(DESTDIR)$(sbindir)/eventum-git-hook
+	for vcs in $(VCS); do \
+		install -p eventum-$$vcs-hook.php $(DESTDIR)$(sbindir)/eventum-$$vcs-hook; \
+	done
 	cp -p helpers.php $(DESTDIR)$(sbindir)
 
 clean:
