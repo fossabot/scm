@@ -60,8 +60,7 @@ function process_push($reflist)
 
         $revlist = git_rev_list($old, $new, '--no-merges --author-date-order --reverse');
         foreach ($revlist as $rev) {
-            git_scm_ping($old, $rev, $refname);
-            $old = $rev;
+            git_scm_ping($rev, $refname);
         }
     }
 }
@@ -69,10 +68,9 @@ function process_push($reflist)
 /**
  * Submit Git data to Eventum
  *
- * @param string $oldrev
  * @param string $rev
  */
-function git_scm_ping($oldrev, $rev, $refname)
+function git_scm_ping($rev, $refname)
 {
     $commit_msg = git_commit_msg($rev);
     $issues = match_issues($commit_msg);
@@ -84,18 +82,8 @@ function git_scm_ping($oldrev, $rev, $refname)
     $author_email = git_commit_author_email($rev);
     $author_name = git_commit_author_name($rev);
     $commit_date = git_commit_author_date($rev);
-    $modified_files = git_commit_files($rev);
+    $files = git_commit_files($rev);
     $branch = git_branch_name($refname);
-    $files = array();
-    $old_versions = array();
-    $new_versions = array();
-
-    foreach ($modified_files as $i => $file) {
-        $files[$i] = $file['filename'];
-
-        $old_versions[$i] = $oldrev;
-        $new_versions[$i] = $rev;
-    }
 
     $params = array(
         'scm' => 'git',
@@ -108,8 +96,6 @@ function git_scm_ping($oldrev, $rev, $refname)
         'issue' => $issues,
         'files' => $files,
         'commitid' => $rev,
-        'old_versions' => $old_versions,
-        'new_versions' => $new_versions,
     );
 
     try {
@@ -148,18 +134,29 @@ function git_receive_refs()
  */
 function git_commit_files($rev)
 {
-    $files = execx("git show --pretty=format: --name-only $rev");
-    $modified_files = array();
-    foreach ($files as $filename) {
-        $modified_files[] = array(
-            'filename' => $filename,
-            // parent not available. multiple parents when merging
-            'old_revision' => null,
-            'new_revision' => $rev,
-        );
+    $file_info = execx("git show --pretty=format: --name-status $rev");
+
+    // man git-show --diff-filter
+    $map = array(
+        'A' => 'added',
+        'D' => 'removed',
+        'M' => 'modified',
+    );
+    $files = array_fill_keys(array_values($map), array());
+    foreach ($file_info as $line) {
+        list($status, $filename) = explode("\t", $line, 2);
+
+        if (isset($map[$status])) {
+            $change_type = $map[$status];
+        } else {
+            error_log("Unknown type: $line");
+            $change_type = 'unknown';
+        }
+
+        $files[$change_type][] = $filename;
     }
 
-    return $modified_files;
+    return $files;
 }
 
 /**
