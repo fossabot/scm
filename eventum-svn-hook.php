@@ -45,31 +45,43 @@ if (file_exists($configfile)) {
     require_once $configfile;
 }
 
-if ($argc < 3) {
-    error_log("$PROGRAM: Missing arguments, got " . ($argc - 1) . ', expected 2');
+try {
+    main($scm_name, $argv);
+} catch (Exception $e) {
+    error_log("ERROR[$PROGRAM]: " . $e->getMessage());
     exit(1);
 }
+exit(0);
 
-$repos = $argv[0];
-$new_revision = $argv[1];
-$old_revision = $new_revision - 1;
+function main($scm_name, $argv)
+{
+    if (count($argv) != 2) {
+        $count = count($argv);
+        throw new InvalidArgumentException("Invalid arguments, got $count, expected 2");
+    }
 
-if (!isset($svnlook)) {
-    $svnlook = '/usr/bin/svnlook';
-}
+    $repos = $argv[0];
+    $new_revision = $argv[1];
+    $old_revision = $new_revision - 1;
 
-if (!is_executable($svnlook)) {
-    error_log("$PROGRAM: svnlook is not executable, edit \$svnlook");
-    exit(1);
-}
+    global $svnlook;
+    if (!isset($svnlook)) {
+        $svnlook = '/usr/bin/svnlook';
+    }
 
-$results = svnlook('info', $repos, $new_revision);
-list($username, $date, $commit_msg) = svn_commit_info($results);
+    if (!is_executable($svnlook)) {
+        throw new BadFunctionCallException('svnlook is not executable, edit $svnlook');
+    }
 
-// parse the commit message and get all issue numbers we can find
-$issues = match_issues($commit_msg);
-if ($issues) {
-    $module = array();
+    $results = svnlook('info', $repos, $new_revision);
+    list($username, $date, $commit_msg) = svn_commit_info($results);
+
+    // parse the commit message and get all issue numbers we can find
+    $issues = match_issues($commit_msg);
+    if (!$issues) {
+        return;
+    }
+
     $files = array();
     $old_versions = array();
     $new_versions = array();
@@ -100,12 +112,7 @@ if ($issues) {
         'new_versions' => $new_versions,
     );
 
-    try {
-        scm_ping($params);
-    } catch (Exception $e) {
-        error_log("ERROR[$PROGRAM]: " . $e->getMessage());
-        exit(1);
-    }
+    scm_ping($params);
 }
 
 /**
