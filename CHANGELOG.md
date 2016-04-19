@@ -8,6 +8,10 @@ This version of hooks require Eventum 3.1.0.
 From this version onwards eventum-scm is not released as part of main Eventum release.
 
 - cvs/svn/git hooks rewritten to handle new payload for Eventum 3.1.0
+
+2016-04-19, Version [3.0.12]
+----------------------------
+
 - cvs/svn/git: include commitid information on commits
 
 2015-10-31, Version [3.0.4]
@@ -108,7 +112,8 @@ From this version onwards eventum-scm is not released as part of main Eventum re
 - properly encode post data containing `+` (use `rawurlencode` instead of `base64_encode`) [ac8b3ee]
 - report errors from from Eventum server [60304fb]
 
-[3.1.0]: https://github.com/eventum/scm/compare/v3.0.4...master
+[3.1.0]: https://github.com/eventum/scm/compare/v3.0.12...master
+[3.0.12]: https://github.com/eventum/scm/compare/v3.0.4...v3.0.12
 [3.0.4]: https://github.com/eventum/scm/compare/v3.0.3...v3.0.4
 [3.0.3]: https://github.com/eventum/scm/compare/v3.0.2...v3.0.3
 [3.0.2]: https://github.com/eventum/scm/compare/v3.0.0-pre1...v3.0.2
