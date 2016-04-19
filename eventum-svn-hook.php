@@ -61,8 +61,7 @@ function main($scm_name, $argv)
     }
 
     $repos = $argv[0];
-    $new_revision = $argv[1];
-    $old_revision = $new_revision - 1;
+    $rev = $argv[1];
 
     global $svnlook;
     if (!isset($svnlook)) {
@@ -73,7 +72,7 @@ function main($scm_name, $argv)
         throw new BadFunctionCallException('svnlook is not executable, edit $svnlook');
     }
 
-    $results = svnlook('info', $repos, $new_revision);
+    $results = svnlook('info', $repos, $rev);
     list($username, $date, $commit_msg) = svn_commit_info($results);
 
     // parse the commit message and get all issue numbers we can find
@@ -82,23 +81,7 @@ function main($scm_name, $argv)
         return;
     }
 
-    $files = array();
-    $old_versions = array();
-    $new_versions = array();
-
-    $modified_files = svn_commit_files($repos, $old_revision, $new_revision);
-    foreach ($modified_files as $i => &$file) {
-        $files[$i] = $file['filename'];
-
-        // add old revision if content was changed
-        if (array_search('A', $file['flags']) === false) {
-            $old_versions[$i] = $file['old_revision'];
-        }
-        // add new revision if it was not removed
-        if (array_search('D', $file['flags']) === false) {
-            $new_versions[$i] = $file['new_revision'];
-        }
-    }
+    $files = svn_commit_files($repos, $rev);
 
     $params = array(
         'scm' => 'svn',
@@ -107,9 +90,7 @@ function main($scm_name, $argv)
         'commit_msg' => $commit_msg,
         'issue' => $issues,
         'files' => $files,
-        'commitid' => $new_revision,
-        'old_versions' => $old_versions,
-        'new_versions' => $new_versions,
+        'commitid' => $rev,
     );
 
     scm_ping($params);
@@ -142,12 +123,18 @@ function svn_commit_info($results)
  * @param string $rev
  * @return array
  */
-function svn_commit_files($repo, $old_revision, $new_revision)
+function svn_commit_files($repo, $rev)
 {
-    $modified_files = array();
+    // create array with predefined keys
+    $files = array(
+        'added',
+        'removed',
+        'modified',
+    );
+    $files = array_fill_keys($files, array());
 
-    $files = svnlook('changed', $repo, $new_revision);
-    foreach ($files as $file_info) {
+    $changes = svnlook('changed', $repo, $rev);
+    foreach ($changes as $change) {
         // http://svnbook.red-bean.com/en/1.7/svn.ref.svnlook.c.changed.html
         // flags:
         // - 'A ' Item added to repository
@@ -155,16 +142,21 @@ function svn_commit_files($repo, $old_revision, $new_revision)
         // - 'U ' File contents changed
         // - '_U' Properties of item changed; note the leading underscore
         // - 'UU' File contents and properties changed
-        list($flags, $filename) = preg_split('/\s+/', $file_info, 2);
-        $modified_files[] = array(
-            'flags' => preg_split('//', $flags, -1, PREG_SPLIT_NO_EMPTY),
-            'filename' => $filename,
-            'old_revision' => $old_revision,
-            'new_revision' => $new_revision
-        );
+        list($change_info, $filename) = preg_split('/\s+/', $change, 2);
+        $flags = preg_split('//', $change_info, -1, PREG_SPLIT_NO_EMPTY);
+
+        if (array_search('A', $flags) !== false) {
+            $change_type = 'added';
+        } elseif (array_search('D', $flags) !== false) {
+            $change_type = 'removed';
+        } else {
+            $change_type = 'modified';
+        }
+
+        $files[$change_type][] = $filename;
     }
 
-    return $modified_files;
+    return $files;
 }
 
 /**
