@@ -51,12 +51,24 @@ if (file_exists($configfile)) {
     require_once $configfile;
 }
 
-$commit_msg = cvs_commit_msg();
+try {
+    main($scm_name, $argv);
+} catch (Exception $e) {
+    error_log("ERROR[$PROGRAM]: " . $e->getMessage());
+    exit(1);
+}
+exit(0);
 
-// parse the commit message and get all issue numbers we can find
-$issues = match_issues($commit_msg);
+function main($scm_name, $argv)
+{
+    $commit_msg = cvs_commit_msg();
 
-if ($issues) {
+    // parse the commit message and get all issue numbers we can find
+    $issues = match_issues($commit_msg);
+    if (!$issues) {
+        return;
+    }
+
     // grab fileinfo
     list($username, $modified_files) = cvs_commit_info($argv);
 
@@ -89,12 +101,7 @@ if ($issues) {
         'new_versions' => $new_versions,
     );
 
-    try {
-        scm_ping($params);
-    } catch (Exception $e) {
-        error_log("ERROR[$PROGRAM]: " . $e->getMessage());
-        exit(1);
-    }
+    scm_ping($params);
 }
 
 /**
