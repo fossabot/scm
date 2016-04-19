@@ -69,25 +69,8 @@ function main($scm_name, $argv)
         return;
     }
 
-    // grab fileinfo
     list($username, $modified_files) = cvs_commit_info($argv);
-
-    $files = array();
-    $old_versions = array();
-    $new_versions = array();
-    $commitid = array();
-    for ($i = 0; $i < count($modified_files); $i++) {
-        $files[$i] = $modified_files[$i]['filename'];
-        $commitid[$i] = $modified_files[$i]['commitid'];
-        $old_versions[$i] = $modified_files[$i]['old_revision'];
-        $new_versions[$i] = $modified_files[$i]['new_revision'];
-    }
-
-    $commitid = array_unique($commitid);
-    if (count($commitid) > 1) {
-        throw new InvalidArgumentException('Commit Id should be unique');
-    }
-    $commitid = current($commitid);
+    list($commitid, $files) = cvs_get_files($modified_files);
 
     $params = array(
         'scm' => 'cvs',
@@ -97,11 +80,52 @@ function main($scm_name, $argv)
         'issue' => $issues,
         'files' => $files,
         'commitid' => $commitid,
-        'old_versions' => $old_versions,
-        'new_versions' => $new_versions,
     );
 
     scm_ping($params);
+}
+
+/**
+ * create files payload
+ *
+ * @param array $modified_files
+ * @return array
+ */
+function cvs_get_files($modified_files)
+{
+    // create array with predefined keys
+    $files = array(
+        'added',
+        'removed',
+        'modified',
+    );
+    $files = array_fill_keys($files, array());
+
+    $commitid = array();
+    foreach ($modified_files as $file) {
+        $filename = $file['filename'];
+
+        if (!$file['old_revision']) {
+            $change_type = 'added';
+        } elseif (!$file['new_revision']) {
+            $change_type = 'removed';
+        } else {
+            $change_type = 'modified';
+        }
+
+        $files['versions'][$filename] = array($file['old_revision'], $file['new_revision']);
+        $files[$change_type][] = $filename;
+        $commitid[] = $file['commitid'];
+    }
+
+    // flatten commitid
+    $commitid = array_unique($commitid);
+    if (count($commitid) > 1) {
+        throw new InvalidArgumentException('Commit Id should be unique');
+    }
+    $commitid = current($commitid);
+
+    return array($commitid, $files);
 }
 
 /**
