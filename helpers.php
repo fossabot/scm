@@ -50,33 +50,20 @@ function scm_ping($params)
 {
     global $PROGRAM, $eventum_url;
 
-    $ping_url = $eventum_url . 'scm_ping.php';
-    $params['json'] = 1;
+    $ping_url = $eventum_url . 'scm_ping.php?scm='.$params['scm'];
+    $status = json_post($ping_url, $params, 1);
 
-    $res = wget($ping_url, $params);
-    if (!$res) {
-        throw new RuntimeException("Couldn't read response from $ping_url");
+    if ($status['code']) {
+        throw new RuntimeException($status['message'], $status['code']);
     }
 
-    list($headers, $data) = $res;
-    // status line is first header in response
-    $status = array_shift($headers);
-    list($proto, $status, $msg) = explode(' ', trim($status), 3);
-    if ($status != '200') {
-        throw new RuntimeException("Could not ping the Eventum SCM handler script: HTTP status code: $status $msg");
-    }
-
-    $status = json_decode($data, true);
-    // if response is json, try to figure error from there
-    if (is_array($status)) {
-        if ($status['code']) {
-            throw new RuntimeException($status['message'], $status['code']);
-        }
-        $data = $status['message'];
+    $message = trim($status['message']);
+    if (!$message) {
+        return;
     }
 
     // prefix response with our name
-    foreach (explode("\n", trim($data)) as $line) {
+    foreach (explode("\n", $message) as $line) {
         echo "$PROGRAM: $line\n";
     }
 }
@@ -164,4 +151,65 @@ function wget($url, $params, $headers = true)
     }
 
     return $data;
+}
+
+/**
+ * POST json encoded data to $url
+ *
+ * @param string $url
+ * @param array $data
+ * @param bool $assoc
+ * @return array|stdClass result with extra 'meta' key
+ * @author Elan Ruusamäe <glen@delfi.ee>
+ */
+function json_post($url, $data, $assoc = false)
+{
+    // see if schema in url is supported
+    $scheme = parse_url($url, PHP_URL_SCHEME);
+    if (!in_array($scheme, stream_get_wrappers())) {
+        throw new RuntimeException("$scheme:// scheme not supported. Load openssl php extension?");
+    }
+
+    $body = json_encode($data);
+    $headers = array(
+        'Expect: ',
+        'Content-Type: application/json',
+        'Accept: application/json',
+        'Content-Length: ' . strlen($body),
+    );
+
+    $options = array(
+        'method' => 'POST',
+        'content' => $body,
+        'header' => implode("\r\n", $headers)
+    );
+    $options = array(
+        $scheme => $options
+    );
+
+    $context = stream_context_create($options);
+
+    $stream = @fopen($url, 'r', false, $context);
+    if (!$stream) {
+        $error = error_get_last();
+        throw new RuntimeException($error['message']);
+    }
+
+    $meta = stream_get_meta_data($stream);
+    $result = stream_get_contents($stream);
+    fclose($stream);
+
+    $response = json_decode($result, $assoc);
+    if (!$response) {
+        throw new InvalidArgumentException("Unable to decode: $result");
+    }
+    if ($assoc) {
+        $response['meta'] = $meta;
+        $response['raw'] = $result;
+    } else {
+        $response->raw = $result;
+        $response->meta = $meta;
+    }
+
+    return $response;
 }
