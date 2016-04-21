@@ -195,8 +195,8 @@ function json_post($url, $data, $assoc = false)
         throw new RuntimeException($error['message']);
     }
 
-    $meta = stream_get_meta_data($stream);
     $result = stream_get_contents($stream);
+    $meta = stream_get_meta_data($stream);
     fclose($stream);
 
     $response = json_decode($result, $assoc);
