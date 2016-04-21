@@ -8,7 +8,7 @@ This version of hooks require Eventum 3.1.0.
 From this version onwards eventum-scm is not released as part of main Eventum release.
 
 - cvs/svn/git hooks rewritten to handle new payload for Eventum 3.1.0
-- use JSON payload to post data to Eventum
+- use JSON payload to post data to Eventum, 134fd35
 
 2016-04-19, Version [3.0.12]
 ----------------------------
