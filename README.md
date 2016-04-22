@@ -27,5 +27,14 @@ UseNewInfoFmtStrings=yes
 
 ## SVN
 
+ * Setup in your svn server hooks/post-commit:
+
+```sh
+#!/bin/sh
+REPO="$1"
+REV="$2"
+/path/toeventum-svn-hook.php "$REPO" "$REV"
+```
+
 ## Git
 
