@@ -27,7 +27,7 @@ UseNewInfoFmtStrings=yes
 
 ## SVN
 
- * Setup in your svn server hooks/post-commit:
+ * Setup in your svn server `hooks/post-commit`:
 
 ```sh
 #!/bin/sh
@@ -38,3 +38,9 @@ REV="$2"
 
 ## Git
 
+ * Setup in your git repo `hooks/post-receive`:
+
+```sh
+#!/bin/sh
+/path/toeventum-git-hook.php
+```
