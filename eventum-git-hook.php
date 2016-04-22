@@ -12,29 +12,18 @@
  * that were distributed with this source code.
  */
 
-// URL to your Eventum installation.
-// https is supported transparently by PHP 5 if you have openssl module enabled.
-$eventum_url = 'http://eventum.example.com/';
-// SCM repository name. Needed if multiple repositories configured
+require_once __DIR__ . '/helpers.php';
 
-// default to $GL_REPO
-$scm_name = getenv('GL_REPO') ?: 'git';
+$default_options = array(
+    // default to $GL_REPO
+    'n' => getenv('GL_REPO') ?: 'git',
+);
 
-//
-// DO NOT CHANGE ANYTHING AFTER THIS LINE
-//
+$options = _getopt('n:') + $default_options;
 
-// save name of this script
 $PROGRAM = basename(realpath(array_shift($argv)), '.php');
-
-$dir = __DIR__;
-require_once "$dir/helpers.php";
-
-// load eventum-git-hook.conf.php from dir of this script if it exists
-$configfile = "$dir/$PROGRAM.conf.php";
-if (file_exists($configfile)) {
-    require_once $configfile;
-}
+$eventum_url = array_shift($argv);
+$scm_name = $options['n'];
 
 $reflist = git_receive_refs();
 process_push($reflist);

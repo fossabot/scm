@@ -50,7 +50,7 @@ function scm_ping($params)
 {
     global $PROGRAM, $eventum_url;
 
-    $ping_url = $eventum_url . 'scm_ping.php?scm='.$params['scm'];
+    $ping_url = $eventum_url . 'scm_ping.php?scm=' . $params['scm'];
     $status = json_post($ping_url, $params, 1);
 
     if ($status['code']) {
@@ -212,4 +212,34 @@ function json_post($url, $data, $assoc = false)
     }
 
     return $response;
+}
+
+/**
+ * Sane getopt() ajusted from this post:
+ * http://php.net/getopt#100573
+ */
+function _getopt($parameters)
+{
+    global $argv, $argc;
+
+    $options = getopt($parameters);
+    $pruneargv = array();
+    foreach ($options as $option => $value) {
+        foreach ($argv as $key => $chunk) {
+            $regex = '/^' . (isset($option[1]) ? '--' : '-') . $option . '/';
+            if ($chunk == $value && $argv[$key - 1][0] == '-' || preg_match($regex, $chunk)) {
+                array_push($pruneargv, $key);
+            }
+        }
+    }
+    while ($key = array_pop($pruneargv)) {
+        unset($argv[$key]);
+    }
+
+    // renumber $argv to be continuous
+    $argv = array_values($argv);
+    // reset $argc to be correct
+    $argc = count($argv);
+
+    return $options;
 }

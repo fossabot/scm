@@ -12,27 +12,16 @@
  * that were distributed with this source code.
  */
 
-// URL to your Eventum installation.
-// https is supported transparently by PHP 5 if you have openssl module enabled.
-$eventum_url = 'http://eventum.example.com/';
-// SCM repository name. Needed if multiple repositories configured
-$scm_name = 'cvs';
+require_once __DIR__ . '/helpers.php';
 
-//
-// DO NOT CHANGE ANYTHING AFTER THIS LINE
-//
+$default_options = array(
+    'n' => 'cvs',
+);
+$options = _getopt('n:') + $default_options;
 
-// save name of this script
 $PROGRAM = basename(realpath(array_shift($argv)), '.php');
-
-$dir = __DIR__;
-require_once "$dir/helpers.php";
-
-// load eventum-cvs-hook.conf.php from dir of this script if it exists
-$configfile = "$dir/$PROGRAM.conf.php";
-if (file_exists($configfile)) {
-    require_once $configfile;
-}
+$eventum_url = array_shift($argv);
+$scm_name = $options['n'];
 
 try {
     main($scm_name, $argv);

@@ -9,6 +9,7 @@ From this version onwards eventum-scm is not released as part of main Eventum re
 
 - cvs/svn/git hooks rewritten to handle new payload for Eventum 3.1.0
 - use JSON payload to post data to Eventum, [134fd35]
+- lose config, use command line arguments to configure hooks
 
 2016-04-19, Version [3.0.12]
 ----------------------------

@@ -10,7 +10,7 @@ Setup in your CVS server:
 
 ```
 # process any message with eventum
-ALL /path/to/eventum-cvs-hook.php $USER %{sVv}
+ALL /path/to/eventum-cvs-hook.php -n cvs http://eventum.example.org/ $USER %{sVv}
 ```
 
 ###  CVS 1.12:
@@ -18,7 +18,7 @@ ALL /path/to/eventum-cvs-hook.php $USER %{sVv}
  * `CVSROOT/loginfo`:
 ```
 # process any message with eventum
-ALL /path/to/eventum-cvs-hook.php $USER "%p" %{sVv}
+ALL /path/to/eventum-cvs-hook.php -n cvs http://eventum.example.org/ $USER "%p" %{sVv}
 ```
  * `CVSROOT/config`:
 ```
@@ -33,7 +33,7 @@ UseNewInfoFmtStrings=yes
 #!/bin/sh
 REPO="$1"
 REV="$2"
-/path/to/eventum-svn-hook.php "$REPO" "$REV"
+/path/to/eventum-svn-hook.php -n svn http://eventum.example.org/ "$REPO" "$REV"
 ```
 
 ## Git
@@ -42,5 +42,5 @@ REV="$2"
 
 ```sh
 #!/bin/sh
-/path/to/eventum-git-hook.php
+/path/to/eventum-git-hook.php -n git http://eventum.example.org/
 ```
