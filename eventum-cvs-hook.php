@@ -12,23 +12,6 @@
  * that were distributed with this source code.
  */
 
-/*
- * Setup in your CVS server:
- *
- * for CVS 1.11:
- * CVSROOT/loginfo:
- * # process any message with eventum
- * ALL /path/to/eventum-cvs-hook.php $USER %{sVv}
- *
- * for CVS 1.12:
- * CVSROOT/loginfo:
- * # process any message with eventum
- * ALL /path/to/eventum-cvs-hook.php $USER "%p" %{sVv}
- *
- * CVSROOT/config:
- * UseNewInfoFmtStrings=yes
- */
-
 // URL to your Eventum installation.
 // https is supported transparently by PHP 5 if you have openssl module enabled.
 $eventum_url = 'http://eventum.example.com/';

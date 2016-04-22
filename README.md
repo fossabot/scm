@@ -33,7 +33,7 @@ UseNewInfoFmtStrings=yes
 #!/bin/sh
 REPO="$1"
 REV="$2"
-/path/toeventum-svn-hook.php "$REPO" "$REV"
+/path/to/eventum-svn-hook.php "$REPO" "$REV"
 ```
 
 ## Git
@@ -42,5 +42,5 @@ REV="$2"
 
 ```sh
 #!/bin/sh
-/path/toeventum-git-hook.php
+/path/to/eventum-git-hook.php
 ```

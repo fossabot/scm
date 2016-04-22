@@ -12,17 +12,6 @@
  * that were distributed with this source code.
  */
 
-/*
- * @see http://forge.mysql.com/wiki/Eventum:Subversion_integration about SVN integration.
- *
- * Setup in your svn server hooks/post-commit:
- *
- * #!/bin/sh
- * REPO="$1"
- * REV="$2"
- * /path/toeventum-svn-hook.php "$REPO" "$REV"
- */
-
 // URL to your Eventum installation.
 // https is supported transparently by PHP 5 if you have openssl module enabled.
 $eventum_url = 'http://eventum.example.com/';
