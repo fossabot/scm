@@ -184,7 +184,8 @@ function json_post($url, $data, $assoc = false)
         'header' => implode("\r\n", $headers)
     );
     $options = array(
-        $scheme => $options
+        // this needs to be 'http', regardless if we post to https://
+        'http' => $options
     );
 
     $context = stream_context_create($options);
