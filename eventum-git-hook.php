@@ -15,15 +15,18 @@
 require_once __DIR__ . '/helpers.php';
 
 $default_options = array(
-    // default to $GL_REPO
-    'n' => getenv('GL_REPO') ?: 'git',
+    // scm name
+    'n' => 'git',
+    // project name: default to $GL_REPO
+    'p' => getenv('GL_REPO'),
 );
 
-$options = _getopt('n:') + $default_options;
+$options = _getopt('n:p:') + $default_options;
 
 $PROGRAM = basename(realpath(array_shift($argv)), '.php');
 $eventum_url = array_shift($argv);
 $scm_name = $options['n'];
+$scm_project = $options['p'];
 
 $reflist = git_receive_refs();
 process_push($reflist);
@@ -67,7 +70,7 @@ function git_scm_ping($rev, $refname)
         return;
     }
 
-    global $PROGRAM, $scm_name;
+    global $PROGRAM, $scm_name, $scm_project;
     $author_email = git_commit_author_email($rev);
     $author_name = git_commit_author_name($rev);
     $commit_date = git_commit_author_date($rev);
@@ -77,6 +80,7 @@ function git_scm_ping($rev, $refname)
     $params = array(
         'scm' => 'git',
         'scm_name' => $scm_name,
+        'project' => $scm_project,
         'author_email' => $author_email,
         'author_name' => $author_name,
         'commit_date' => $commit_date,
