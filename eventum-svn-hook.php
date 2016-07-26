@@ -14,6 +14,7 @@
 
 require_once __DIR__ . '/helpers.php';
 
+$original_argv = $argv;
 $default_options = array(
     'n' => 'svn',
 );
@@ -27,6 +28,7 @@ try {
     main($scm_name, $argv);
 } catch (Exception $e) {
     error_log("ERROR[$PROGRAM]: " . $e->getMessage());
+    error_log('Debug saved to: ' . save_environment());
     exit(1);
 }
 exit(0);

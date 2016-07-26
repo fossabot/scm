@@ -14,6 +14,7 @@
 
 require_once __DIR__ . '/helpers.php';
 
+$original_argv = $argv;
 $default_options = array(
     // scm name
     'n' => 'git',
@@ -95,6 +96,7 @@ function git_scm_ping($rev, $refname)
         scm_ping($params);
     } catch (Exception $e) {
         error_log("ERROR[$PROGRAM]: " . $e->getMessage());
+        error_log('Debug saved to: ' . save_environment());
         exit(1);
     }
 }
@@ -111,7 +113,7 @@ function git_scm_ping($rev, $refname)
 function git_receive_refs()
 {
     $result = array();
-    $input = stream_get_contents(STDIN);
+    $input = getInput();
     foreach (explode(PHP_EOL, rtrim($input, PHP_EOL)) as $line) {
         $result[] = explode(' ', $line);
     }

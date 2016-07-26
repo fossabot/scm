@@ -14,6 +14,7 @@
 
 require_once __DIR__ . '/helpers.php';
 
+$original_argv = $argv;
 $default_options = array(
     'n' => 'cvs',
 );
@@ -27,6 +28,7 @@ try {
     main($scm_name, $argv);
 } catch (Exception $e) {
     error_log("ERROR[$PROGRAM]: " . $e->getMessage());
+    error_log('Debug saved to: ' . save_environment());
     exit(1);
 }
 exit(0);
@@ -236,7 +238,7 @@ function cvs_filter_none($rev)
 function cvs_commit_msg()
 {
     // get the full commit message
-    $input = stream_get_contents(STDIN);
+    $input = getInput();
     $commit_msg = rtrim(substr($input, strpos($input, 'Log Message:') + strlen('Log Message:') + 1));
 
     return $commit_msg;

@@ -244,3 +244,59 @@ function _getopt($parameters)
 
     return $options;
 }
+
+/**
+ * Static version to get STDIN more than once even for older PHP engines
+ */
+function getInput()
+{
+    static $stdin;
+    if ($stdin === null) {
+        $stdin = stream_get_contents(STDIN);
+    }
+
+    return $stdin;
+}
+
+/**
+ * Retrieve environment variables
+ * As $_ENV is not reliable (variables_order may not contain E), we use phpinfo() call
+ */
+function get_all_env()
+{
+    ob_start();
+    phpinfo(INFO_ENVIRONMENT);
+    $buffer = ob_get_clean();
+
+    # parse output like: "CVS_PID => 27518"
+    preg_match_all('/^(?P<name>[^=]+)\s=>\s+/m', $buffer, $m);
+
+    # we use getenv() to get "raw" value of env
+    $env = array();
+    foreach ($m['name'] as $key) {
+        $value = getenv($key);
+        if ($value !== false) {
+            $env[$key] = $value;
+        }
+    }
+
+    return $env;
+}
+
+/**
+ * Method used to store execution environment details to temp file so the failed command could be repeated
+ */
+function save_environment()
+{
+    global $original_argv, $PROGRAM;
+
+    $tmpfile = tempnam(sys_get_temp_dir(), $PROGRAM);
+    file_put_contents($tmpfile, serialize(array(
+        'command' => $original_argv,
+        'cwd' => getcwd(),
+        'stdin' => getInput(),
+        'env' => get_all_env(),
+    )));
+
+    return $tmpfile;
+}

@@ -1,6 +1,11 @@
 Eventum SCM hook scripts
 ========================
 
+2016-??-??, Version [3.1.1]
+----------------------------
+
+- save execution environment in case of errors
+
 2016-04-28, Version [3.1.0]
 ----------------------------
 
