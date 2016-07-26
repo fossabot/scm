@@ -292,6 +292,7 @@ function save_environment()
 
     $tmpfile = tempnam(sys_get_temp_dir(), $PROGRAM);
     file_put_contents($tmpfile, serialize(array(
+        'php_version' => PHP_VERSION,
         'command' => $original_argv,
         'cwd' => getcwd(),
         'stdin' => getInput(),
