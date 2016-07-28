@@ -181,7 +181,8 @@ function json_post($url, $data, $assoc = false)
     $options = array(
         'method' => 'POST',
         'content' => $body,
-        'header' => implode("\r\n", $headers)
+        'header' => implode("\r\n", $headers),
+        'timeout' => 5.0,
     );
     $options = array(
         // this needs to be 'http', regardless if we post to https://

@@ -5,6 +5,7 @@ Eventum SCM hook scripts
 ----------------------------
 
 - save execution environment in case of errors
+- use 5s timeout for making requests
 
 2016-04-28, Version [3.1.0]
 ----------------------------
