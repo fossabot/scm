@@ -13,11 +13,13 @@ cache:
 
 # travis cache does not support files, only directories
 # so do some hackery to use .cache/ for caching box.phar between builds
-before_script:
-  - ls -la .cache
-  - test ! -e .cache/box.phar || cp -p .cache/box.phar .
-  - make box.phar
-  - cp -p box.phar .cache
+before_script: |
+  if [ -e .cache/box.phar ]; then
+    cp -p .cache/box.phar .
+  else
+    make box.phar
+    cp -p box.phar .cache
+  fi
 
 script:
   - make phar
