@@ -1,11 +1,12 @@
 Eventum SCM hook scripts
 ========================
 
-2016-??-??, Version [3.1.1]
+2016-09-06, Version [3.1.1]
 ----------------------------
 
 - save execution environment in case of errors
 - use 5s timeout for making requests
+- automate .phar building using travis
 
 2016-04-28, Version [3.1.0]
 ----------------------------
