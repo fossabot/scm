@@ -4,3 +4,4 @@
 
 # maintenance tools
 /.php_cs export-ignore
+/.travis.yml
