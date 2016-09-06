@@ -36,6 +36,7 @@ deploy:
   skip_cleanup: true
   on:
     repo: eventum/scm
+    php: '5.6'
     tags: true
 
 # vim:ft=yaml:et:ts=2:sw=2
