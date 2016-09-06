@@ -198,7 +198,7 @@ function git_commit_author_date($rev)
  */
 function git_commit_msg($rev)
 {
-    return git_format($rev, '%B');
+    return implode("\n", execx("git log --format=%B -n1 $rev"));
 }
 
 /**
