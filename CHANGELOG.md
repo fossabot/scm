@@ -122,6 +122,7 @@ From this version onwards eventum-scm is not released as part of main Eventum re
 - properly encode post data containing `+` (use `rawurlencode` instead of `base64_encode`) [ac8b3ee]
 - report errors from from Eventum server [60304fb]
 
+[3.1.1]: https://github.com/eventum/scm/compare/v3.1.0...v3.1.1
 [3.1.0]: https://github.com/eventum/scm/compare/v3.0.12...v3.1.0
 [3.0.12]: https://github.com/eventum/scm/compare/v3.0.4...v3.0.12
 [3.0.4]: https://github.com/eventum/scm/compare/v3.0.3...v3.0.4
