@@ -24,4 +24,18 @@ before_script: |
 script:
   - make phar
 
+# https://docs.travis-ci.com/user/deployment/releases
+deploy:
+  provider: releases
+  api_key:
+    secure: x3bCH29HQm6R/NLnLbjh63B9W9oIWzMNg3R8LdBVj8mFwyjNePKJ13jmXiX4OdrGk9qofr0F5RM4nw18vHt44IXXX5rCaTpky53PWjrWNYhwKhhuThZKMctTlcTlptT3FKr6Gln2y9qYMEGDAQmZ/w6dv7YMelp2d1P64XSyxOY=
+  file:
+    - eventum-cvs-hook.phar
+    - eventum-git-hook.phar
+    - eventum-svn-hook.phar
+  skip_cleanup: true
+  on:
+    repo: eventum/scm
+    tags: true
+
 # vim:ft=yaml:et:ts=2:sw=2
