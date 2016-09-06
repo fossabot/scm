@@ -7,7 +7,10 @@ php:
 - '5.4'
 - '5.3'
 
+before_script:
+  - make box.phar
+
 script:
-  - make
+  - make phar
 
 # vim:ft=yaml:et:ts=2:sw=2
