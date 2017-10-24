@@ -61,7 +61,7 @@ From this version onwards eventum-scm is not released as part of main Eventum re
 [7927586]: https://github.com/eventum/scm/commit/7927586
 [3.0.2]: https://github.com/eventum/scm/compare/v3.0.0-pre1...v3.0.2
 
-## [3.0.0] - 2014-11-30
+## [3.0.0-pre1] - 2014-11-30
 
 - moved out of Eventum sourcetree as separate git repo
 - added git hook script [0e6c1ea], [LP#1078454]
@@ -69,16 +69,16 @@ From this version onwards eventum-scm is not released as part of main Eventum re
 - restructure code to be more modular, move common code to helpers
 - eventum now supports multiple scm repositories [d9f120b]
 
-[3.0.0]: https://github.com/eventum/scm/compare/v2.4.0-pre1...v3.0.0-pre1
+[3.0.0-pre1]: https://github.com/eventum/scm/compare/v2.4.0-pre1...v3.0.0-pre1
 [0e6c1ea]: https://github.com/eventum/scm/commit/0e6c1ea
 [LP#1078454]: https://bugs.launchpad.net/eventum/+bug/1078454
 [d9f120b]: https://github.com/eventum/scm/commit/d9f120b
 
-## [2.4.0] - 2014-10-04
+## [2.4.0-pre1] - 2014-10-04
 
 - no functional changes
 
-[2.4.0]: https://github.com/eventum/scm/compare/v2.3.6...v2.4.0-pre1
+[2.4.0-pre1]: https://github.com/eventum/scm/compare/v2.3.6...v2.4.0-pre1
 
 ## [2.3.6] - 2014-01-28
 
