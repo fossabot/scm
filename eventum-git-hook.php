@@ -129,7 +129,7 @@ function git_receive_refs()
  */
 function git_commit_files($rev)
 {
-    $file_info = execx("git show --pretty=format: --name-status $rev");
+    $file_info = execx("git show --pretty=format: --no-renames --name-status $rev");
 
     // man git-show --diff-filter
     $map = array(
@@ -144,7 +144,7 @@ function git_commit_files($rev)
         if (isset($map[$status])) {
             $change_type = $map[$status];
         } else {
-            error_log("Unknown type: $line");
+            error_log("git-show: Unknown type: $line");
             $change_type = 'unknown';
         }
 

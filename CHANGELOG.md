@@ -1,10 +1,15 @@
 Eventum SCM hook scripts
 ========================
 
+2017-10-24, Version [3.1.3]
+----------------------------
+
+- use --no-renames for git status extract, #3
+
 2016-09-06, Version [3.1.2]
 ----------------------------
 
-- git hook does not match multiline messages. #2
+- git hook does not match multiline messages, #2
 
 2016-09-06, Version [3.1.1]
 ----------------------------
