@@ -4,7 +4,7 @@
 
 - use --no-renames for git status extract, #3
 
-[3.1.2]: https://github.com/eventum/scm/compare/v3.1.2...v3.1.3
+[3.1.3]: https://github.com/eventum/scm/compare/v3.1.2...v3.1.3
 
 ## [3.1.2] - 2016-09-06
 
