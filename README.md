@@ -1,4 +1,6 @@
 # Eventum SCM hook scripts
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Feventum%2Fscm.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Feventum%2Fscm?ref=badge_shield)
+
 
 ## CVS
 
@@ -44,3 +46,7 @@ REV="$2"
 #!/bin/sh
 /path/to/eventum-git-hook.php -n git http://eventum.example.org/
 ```
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Feventum%2Fscm.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Feventum%2Fscm?ref=badge_large)
